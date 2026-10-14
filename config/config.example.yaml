@@ -1,0 +1,20 @@
+project:
+  name: aerial-surveillance-multi-object-tracking
+  mode: portfolio-demo
+
+stream:
+  source: 0
+  reconnect: true
+
+detection:
+  model: yolo11n.pt
+  confidence_threshold: 0.35
+  image_size: 640
+
+tracking:
+  tracker: bytetrack.yaml
+  persist: true
+
+metrics:
+  show_fps: true
+  show_active_tracks: true
