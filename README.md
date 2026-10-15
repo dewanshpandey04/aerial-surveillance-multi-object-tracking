@@ -15,6 +15,7 @@ The professional project involved processing live UAV camera feeds, detecting mu
 - Maintained persistent object IDs and structured metadata for tracked objects.
 - Added credential-safe stream labeling so sensitive RTSP information is not exposed in logs or displays.
 - Implemented active-track summaries and runtime metrics for monitoring.
+- Added normalized track records, class/confidence filtering, and JSONL metadata export.
 - Worked with NVIDIA Jetson and Raspberry Pi-class hardware for edge-AI deployment.
 - Added benchmark scripts, deployment documentation, unit tests, and CI for a professional public presentation.
 
@@ -28,19 +29,24 @@ These figures describe the original project environment. The private training da
 
 **Python · YOLO · PyTorch · OpenCV · ByteTrack · RTSP · NVIDIA Jetson · Raspberry Pi · CUDA**
 
-## Repository structure
+## Source code
 
 | Path | Purpose |
 |---|---|
-| `src/surveillance.py` | Live/video/network-stream detection + tracking |
-| `src/track_summary.py` | Track-count and class-summary utilities |
-| `src/metrics.py` | Runtime FPS / latency metrics |
-| `src/utils.py` | Input parsing and credential-safe stream labels |
-| `config/` | Public-safe configuration template |
-| `scripts/benchmark.py` | Inference performance benchmark |
-| `tests/` | Unit tests |
-| `docs/` | Architecture, deployment, verification, and code-tour notes |
-| `.github/workflows/` | CI checks |
+| `src/surveillance.py` | Live/video/network-stream YOLO + ByteTrack pipeline |
+| `src/stream.py` | Video-source wrapper for webcam, files, and network streams |
+| `src/track_record.py` | Normalized tracked-object record |
+| `src/result_adapter.py` | Converts tracker results into reusable records |
+| `src/track_summary.py` | Active-track and class summaries |
+| `src/class_filter.py` | Class and confidence filtering |
+| `src/export.py` | JSONL tracking-metadata export |
+| `src/metrics.py` | Rolling latency / FPS metrics |
+| `src/utils.py` | Source parsing and credential-safe stream labels |
+| `scripts/benchmark.py` | Inference-performance benchmark |
+| `scripts/summarize_jsonl.py` | Offline summary of exported track metadata |
+| `tests/` | Unit tests for records, filtering, export, metrics, and utilities |
+| `models/README.md` | Model-artifact policy |
+| `docs/` | Architecture, deployment, verification, performance, and code-tour notes |
 
 ## Quick start
 
@@ -74,6 +80,18 @@ Run tests:
 
 ```powershell
 pytest -q
+```
+
+Benchmark a local/public video:
+
+```powershell
+python scripts/benchmark.py --model yolo11n.pt --source path\to\video.mp4
+```
+
+Summarize an exported JSONL metadata file:
+
+```powershell
+python scripts/summarize_jsonl.py outputs\tracks.jsonl
 ```
 
 ## Engineering documentation
