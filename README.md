@@ -16,22 +16,7 @@ The professional project involved processing live UAV camera feeds, detecting mu
 - Added credential-safe stream labeling so sensitive RTSP information is not exposed in logs or displays.
 - Implemented active-track summaries and runtime metrics for monitoring.
 - Worked with NVIDIA Jetson and Raspberry Pi-class hardware for edge-AI deployment.
-- Contributed reusable perception components and tracked-object metadata that supported broader **automated interception pipeline** work in the autonomous UAV software stack.
 - Added benchmark scripts, deployment documentation, unit tests, and CI for a professional public presentation.
-
-## Automated Interception Pipeline Context
-
-This surveillance project is a separate application, but it demonstrates several of the same perception building blocks used in my broader **automated interception pipeline** work:
-
-- live camera / network-stream acquisition
-- real-time object detection
-- persistent multi-object tracking
-- structured track metadata
-- target-state-ready outputs
-- low-latency edge inference
-- clean interfaces for downstream autonomous-system integration
-
-The public repository remains focused on surveillance and tracking. It does not contain proprietary target-engagement logic, flight-control commands, navigation/control laws, actuation logic, or operational interception behavior.
 
 ## Professional project scope
 
