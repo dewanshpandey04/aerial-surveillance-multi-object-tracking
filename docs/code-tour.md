@@ -2,52 +2,56 @@
 
 ## `src/surveillance.py`
 
-Main live/video/network-stream entry point. It runs YOLO + ByteTrack, renders optional annotated output, reports active tracks, and avoids showing full stream credentials.
+Main application entry point. It runs YOLO + ByteTrack, normalizes tracker results, applies optional metadata filters, updates runtime metrics, writes optional JSONL output, and renders annotated frames.
 
 ## `src/stream.py`
 
-Wraps webcam, file, and network-stream input in a small reusable frame interface.
+Provides a small abstraction around webcam, file, and network-video sources.
 
 ## `src/track_record.py`
 
-Defines the stable, serializable record used for one tracked object.
+Defines the stable `TrackRecord` model used outside the inference framework.
 
 ## `src/result_adapter.py`
 
-Converts Ultralytics tracking results into `TrackRecord` objects so the rest of the code does not depend on model-specific result structures.
+Converts Ultralytics tracking results into `TrackRecord` objects so metadata, export, and reporting code do not depend on framework-specific result structures.
 
 ## `src/track_summary.py`
 
-Produces active-track counts, class distributions, and visible ID summaries.
+Produces active-track counts, class distributions, and visible track-ID lists from normalized records.
 
 ## `src/class_filter.py`
 
-Filters records by class name and minimum confidence for display/reporting workflows.
+Parses optional class-name filters and filters normalized records by class and confidence.
 
 ## `src/export.py`
 
-Writes frame-level tracking metadata to JSON Lines for offline review and analysis.
-
-## `src/utils.py`
-
-Parses webcam sources and sanitizes stream labels so usernames, passwords, and private endpoints are not exposed by the UI.
+Writes frame-level tracking metadata to JSON Lines for offline inspection and analysis.
 
 ## `src/metrics.py`
 
-Maintains rolling latency and approximate FPS metrics without depending on GPU libraries.
+Maintains a rolling window of frame-processing latency and approximate FPS.
+
+## `src/config.py`
+
+Loads and validates the YAML runtime configuration schema.
+
+## `src/utils.py`
+
+Parses webcam sources and sanitizes stream labels so usernames, passwords, and private endpoints are not exposed in the display.
 
 ## `scripts/benchmark.py`
 
-Runs a repeatable inference timing measurement for a reviewer-selected model, source, image size, and device.
+Collects inference timings and reports mean latency, p95 latency, and approximate inference FPS.
 
 ## `scripts/summarize_jsonl.py`
 
-Summarizes an exported JSONL file into frame count, track observations, unique IDs, and class observations.
+Summarizes exported metadata into frame count, track observations, unique IDs, and class observations.
 
 ## `tests/`
 
-Validates source parsing, credential redaction, track records, filtering, JSONL export, summaries, and runtime metrics.
+Covers source parsing, credential redaction, configuration validation, result normalization, track records, filtering, JSONL export, summaries, and runtime metrics.
 
-## Engineering intent
+## Design intent
 
-The project separates ingestion, inference, tracking metadata, filtering, export, metrics, and documentation so reviewers can understand the design without access to private datasets or production infrastructure.
+Inference-framework objects are converted into project-owned data models before reporting or export. This keeps ingestion, inference, metadata processing, metrics, and offline analysis independently testable.
