@@ -15,11 +15,12 @@ Real-time **aerial object detection and multi-object tracking software** for web
 - Class-name and confidence filtering for metadata reporting
 - Active-track counts, class distributions, and persistent-ID summaries
 - Credential-safe RTSP/network-stream labels
-- Frame-level JSONL metadata export
+- Line-buffered frame-level JSONL metadata export
 - Offline metadata summarization
-- Rolling latency and approximate FPS metrics
+- Rolling frame-time and approximate FPS metrics
+- CLI and YAML-driven runtime configuration
 - Unit-tested reusable logic
-- Automated syntax, lint, and test checks on Python 3.10, 3.11, and 3.12
+- Automated syntax, lint, CLI-smoke, and test checks on Python 3.10, 3.11, and 3.12
 - Deployment notes for NVIDIA Jetson and Raspberry Pi-class systems
 
 ## Processing pipeline
@@ -30,7 +31,7 @@ Real-time **aerial object detection and multi-object tracking software** for web
 4. **Normalization** — tracker results converted into `TrackRecord` objects
 5. **Reporting filters** — optional class and confidence filtering
 6. **Summaries** — track count, class distribution, and visible IDs
-7. **Metrics** — rolling latency and approximate FPS
+7. **Metrics** — rolling frame time and approximate FPS
 8. **Export** — optional JSONL metadata for offline analysis
 9. **Visualization** — annotated OpenCV display with sanitized source label
 
@@ -55,8 +56,8 @@ These results refer to the original project environment. Private training data, 
 | `src/result_adapter.py` | Ultralytics result normalization |
 | `src/track_summary.py` | Active-track and class summaries |
 | `src/class_filter.py` | Class parsing and metadata filtering |
-| `src/export.py` | JSONL tracking-metadata export |
-| `src/metrics.py` | Rolling latency / FPS metrics |
+| `src/export.py` | Buffered JSONL tracking-metadata export |
+| `src/metrics.py` | Rolling frame-time / FPS metrics |
 | `src/config.py` | YAML configuration validation |
 | `src/utils.py` | Source parsing and credential-safe labels |
 | `config/` | Example runtime configuration |
@@ -106,6 +107,14 @@ Network stream:
 python -m src.surveillance --source "rtsp://USER:PASSWORD@HOST/stream" --show
 ```
 
+Run from the example YAML configuration:
+
+```powershell
+python -m src.surveillance --config config\config.example.yaml --show
+```
+
+CLI values such as `--model`, `--source`, `--conf`, and `--imgsz` override the corresponding config values when supplied.
+
 Export frame-level tracking metadata:
 
 ```powershell
@@ -125,6 +134,7 @@ Do not commit real stream credentials.
 ```powershell
 python -m compileall -q src scripts tests
 ruff check .
+python -m src.surveillance --help
 python -m pytest -q
 ```
 
@@ -132,8 +142,16 @@ CI runs these checks on **Python 3.10, 3.11, and 3.12**.
 
 ## Benchmarking
 
+Human-readable output:
+
 ```powershell
 python scripts/benchmark.py --model yolo11n.pt --source path\to\video.mp4
+```
+
+Machine-readable output:
+
+```powershell
+python scripts/benchmark.py --model yolo11n.pt --source path\to\video.mp4 --json
 ```
 
 ## Metadata analysis
