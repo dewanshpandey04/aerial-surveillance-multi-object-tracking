@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from time import time
 from typing import Any
 
+from .utils import safe_stream_label
+
 
 @dataclass(frozen=True)
 class StreamFrame:
@@ -20,7 +22,8 @@ class VideoStream:
 
         self._capture = cv2.VideoCapture(source)
         if not self._capture.isOpened():
-            raise RuntimeError(f"Unable to open video source: {source}")
+            self._capture.release()
+            raise RuntimeError(f"Unable to open video source: {safe_stream_label(str(source))}")
         self._frame_id = 0
 
     def read(self) -> StreamFrame | None:
@@ -36,5 +39,5 @@ class VideoStream:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc, tb):
+    def __exit__(self, exc_type, exc, tb) -> None:
         self.close()
