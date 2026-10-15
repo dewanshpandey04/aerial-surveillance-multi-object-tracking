@@ -7,6 +7,9 @@ GitHub Actions runs the following checks on Python 3.10, 3.11, and 3.12:
 ```powershell
 python -m compileall -q src scripts tests
 ruff check .
+python -m src.surveillance --help
+python scripts/benchmark.py --help
+python scripts/summarize_jsonl.py --help
 python -m pytest -q
 ```
 
@@ -21,8 +24,8 @@ The test suite validates:
 - normalized track-record serialization
 - class-name parsing and confidence filtering
 - track summaries and persistent IDs
-- JSONL metadata export
-- rolling latency and approximate FPS metrics
+- context-managed JSONL metadata export
+- rolling frame-time and approximate FPS metrics
 
 ## Performance verification
 
