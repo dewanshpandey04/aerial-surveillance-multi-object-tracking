@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 
-def parse_source(value: str):
-    """Convert webcam index strings to int; keep paths/URLs as strings."""
-    value = value.strip()
-    return int(value) if value.isdigit() else value
+def parse_source(value: str | int) -> int | str:
+    """Normalize webcam indexes while preserving file paths and URLs."""
+    if isinstance(value, int):
+        return value
+    text = str(value).strip()
+    return int(text) if text.isdigit() else text
 
 
 def safe_stream_label(source: str) -> str:
