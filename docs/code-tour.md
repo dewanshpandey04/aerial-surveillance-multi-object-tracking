@@ -2,7 +2,7 @@
 
 ## `src/surveillance.py`
 
-Main application entry point. It runs YOLO + ByteTrack, normalizes tracker results, applies optional metadata filters, updates runtime metrics, writes optional JSONL output, and renders annotated frames.
+Main application entry point. It runs YOLO + ByteTrack, normalizes tracker results, applies optional metadata filters, updates frame-time/FPS metrics, writes optional JSONL output, and renders annotated frames.
 
 ## `src/stream.py`
 
@@ -26,11 +26,11 @@ Parses optional class-name filters and filters normalized records by class and c
 
 ## `src/export.py`
 
-Writes frame-level tracking metadata to JSON Lines for offline inspection and analysis.
+Writes frame-level tracking metadata to a line-buffered JSON Lines stream for offline inspection and analysis.
 
 ## `src/metrics.py`
 
-Maintains a rolling window of frame-processing latency and approximate FPS.
+Maintains a rolling window of frame times and exposes mean frame time and approximate FPS.
 
 ## `src/config.py`
 
@@ -42,7 +42,7 @@ Parses webcam sources and sanitizes stream labels so usernames, passwords, and p
 
 ## `scripts/benchmark.py`
 
-Collects inference timings and reports mean latency, p95 latency, and approximate inference FPS.
+Collects model inference timings and reports mean inference latency, p95 inference latency, and approximate inference FPS in text or JSON.
 
 ## `scripts/summarize_jsonl.py`
 
