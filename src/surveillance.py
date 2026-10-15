@@ -6,7 +6,7 @@ import time
 import cv2
 from ultralytics import YOLO
 
-from src.class_filter import filter_tracks
+from src.class_filter import filter_tracks, parse_class_names
 from src.export import JsonlTrackExporter
 from src.metrics import RuntimeMetrics
 from src.result_adapter import track_records_from_result
@@ -45,19 +45,12 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _parse_class_filter(value: str | None) -> set[str] | None:
-    if not value:
-        return None
-    classes = {item.strip() for item in value.split(",") if item.strip()}
-    return classes or None
-
-
 def main() -> None:
     args = build_parser().parse_args()
     source = parse_source(args.source)
     model = YOLO(args.model)
     metrics = RuntimeMetrics(window=60)
-    allowed_classes = _parse_class_filter(args.report_classes)
+    allowed_classes = parse_class_names(args.report_classes)
     exporter = JsonlTrackExporter(args.export_jsonl) if args.export_jsonl else None
 
     results = model.track(
