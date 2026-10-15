@@ -1,22 +1,39 @@
-# Verification Plan
+# Verification
 
-## Functional
+## Automated quality gates
 
-- webcam index parsing
-- credential-safe stream labels
-- stable track-summary schema
-- active-track counts
-- class distribution summaries
+GitHub Actions runs the following checks on Python 3.10, 3.11, and 3.12:
 
-## Performance
+```powershell
+python -m compileall -q src scripts tests
+ruff check .
+python -m pytest -q
+```
 
-Use the benchmark script to record:
+## Unit-test coverage
 
+The test suite validates:
+
+- webcam/source parsing
+- credential-safe network-stream labels
+- YAML configuration validation
+- tracker-result normalization using lightweight test doubles
+- normalized track-record serialization
+- class-name parsing and confidence filtering
+- track summaries and persistent IDs
+- JSONL metadata export
+- rolling latency and approximate FPS metrics
+
+## Performance verification
+
+Use `scripts/benchmark.py` to record:
+
+- measured frame count
 - mean inference latency
 - p95 inference latency
-- approximate FPS
-- image size
+- approximate inference FPS
 - model
-- device
+- image size
+- compute device
 
-Only publish performance numbers measured on the stated hardware and configuration.
+Only compare performance values measured with a stated model, precision, input size, device, and source pipeline.
