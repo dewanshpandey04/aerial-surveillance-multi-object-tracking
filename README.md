@@ -1,8 +1,8 @@
 # Aerial Surveillance & Multi-Object Tracking
 
-**Python · YOLO · ByteTrack · OpenCV · RTSP · Pytest**
+**Python · YOLO · ByteTrack · OpenCV · RTSP · NVIDIA Jetson · Raspberry Pi 5 · Hailo AI HAT · Pytest**
 
-A real-time computer vision project for detecting and tracking objects in webcam, video-file, and network-stream inputs. Includes reusable tracking metadata, JSONL export, class filters, metrics, and unit tests.
+A real-time computer-vision project for detecting and tracking objects in webcam, video-file, and network-stream inputs. Includes reusable tracking metadata, JSONL export, class filters, runtime metrics, benchmarking, and embedded edge-AI deployment practices.
 
 ## Quick start
 
@@ -30,6 +30,14 @@ Activate the virtual environment before installing packages when appropriate for
 
 For RTSP input, pass the stream URL through `--source` without committing credentials.
 
+## Edge AI deployment
+
+The original project included embedded deployment work on **NVIDIA Jetson**, **Raspberry Pi 5**, and **Raspberry Pi 5 with a Hailo AI HAT accelerator**.
+
+The public repository keeps the inference path hardware-neutral. Device-specific Hailo compiled model artifacts, private production weights, and deployment configuration are intentionally not included.
+
+No Hailo-specific FPS figure is claimed here unless it is measured on the stated model, runtime, input size, and hardware configuration.
+
 ## Code map
 
 | Location | Responsibility |
@@ -53,9 +61,8 @@ ruff check .
 
 [Project evidence: code, tests, and research boundaries](docs/project-evidence.md)
 
-
 [Architecture](docs/architecture.md) · [Deployment](docs/deployment.md) · [Verification](docs/verification.md) · [Performance](docs/performance.md) · [Contributing](CONTRIBUTING.md)
 
-**Publication boundary:** This is a public portfolio implementation. Private footage, production model weights, company source code, and credentials are not included. Historical performance claims from the original project are described separately in [performance notes](docs/performance.md) and are not reproducible from this repository alone.
+**Repository boundary:** Private footage, production model weights, company source code, credentials, Hailo deployment artifacts, and confidential production configuration are not included. Historical performance claims from the original project are described separately in [performance notes](docs/performance.md) and are not reproducible from this repository alone.
 
 **Author:** [Dewansh Pandey](https://github.com/dewanshpandey04)
