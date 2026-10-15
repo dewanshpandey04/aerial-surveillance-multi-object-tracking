@@ -2,63 +2,71 @@
 
 ![CI](https://github.com/dewanshpandey04/aerial-surveillance-multi-object-tracking/actions/workflows/ci.yml/badge.svg)
 
-## Overview
+Real-time **aerial object detection and multi-object tracking software** for webcam, recorded-video, and network-stream inputs, with normalized track metadata, filtering, runtime metrics, JSONL export, and edge-AI deployment support.
 
-Real-time aerial surveillance and multi-object tracking system built with **YOLO, ByteTrack, OpenCV, and edge-AI deployment practices**.
+**Python · PyTorch · YOLO · OpenCV · ByteTrack · RTSP · CUDA · NVIDIA Jetson · Raspberry Pi · GitHub Actions**
 
-The project processes webcam, recorded-video, and network-stream inputs; performs detection and persistent tracking; normalizes tracked-object metadata; exposes runtime metrics; and supports offline JSONL export for analysis.
+## Engineering highlights
 
-Private footage, credentials, proprietary datasets, production model weights, and confidential deployment configuration are not included.
-
-## Key capabilities
-
-- YOLO object detection
-- ByteTrack multi-object tracking
-- Persistent track IDs
-- Webcam, video, and RTSP-style stream input
-- Credential-safe stream labeling
-- Class and confidence filtering
-- Track summaries and class counts
-- JSONL metadata export
+- YOLO-based real-time object detection
+- ByteTrack persistent multi-object tracking
+- Stable `TrackRecord` data model for downstream processing
+- Result adapters that isolate application code from framework-specific result objects
+- Class-name and confidence filtering for metadata reporting
+- Active-track counts, class distributions, and persistent-ID summaries
+- Credential-safe RTSP/network-stream labels
+- Frame-level JSONL metadata export
 - Offline metadata summarization
-- FPS and inference-latency monitoring
-- Unit tests and GitHub Actions CI
-- Jetson / Raspberry Pi deployment documentation
+- Rolling latency and approximate FPS metrics
+- Unit-tested reusable logic
+- Automated syntax, lint, and test checks on Python 3.10, 3.11, and 3.12
+- Deployment notes for NVIDIA Jetson and Raspberry Pi-class systems
 
-## Project results
+## Processing pipeline
 
-The original project work included detection and tracking of **humans, UAVs, tanks, vehicles, and other ground objects** from aerial imagery.
+1. **Input** — webcam index, video file, or network stream
+2. **Detection** — YOLO class/confidence/bounding-box inference
+3. **Tracking** — ByteTrack persistent object IDs
+4. **Normalization** — tracker results converted into `TrackRecord` objects
+5. **Reporting filters** — optional class and confidence filtering
+6. **Summaries** — track count, class distribution, and visible IDs
+7. **Metrics** — rolling latency and approximate FPS
+8. **Export** — optional JSONL metadata for offline analysis
+9. **Visualization** — annotated OpenCV display with sanitized source label
+
+## Measured project results
+
+The original project work included real-time detection and tracking of **humans, UAVs, tanks, vehicles, and other ground objects** from aerial imagery.
 
 | Metric | Result |
 |---|---:|
 | Custom detector | mAP50 > 0.92 |
 | Optimized live UAV camera pipeline | 50+ FPS |
 
-These results refer to the original project configuration. The private training data, production weights, and exact deployment environment are not distributed with this repository.
-
-## Tech stack
-
-**Python · YOLO · PyTorch · OpenCV · ByteTrack · RTSP · NVIDIA Jetson · Raspberry Pi · CUDA**
+These results refer to the original project environment. Private training data, production model weights, customer footage, and exact deployment configuration are not included in this repository.
 
 ## Repository structure
 
-| Path | Purpose |
+| Path | Responsibility |
 |---|---|
-| `src/surveillance.py` | Main detection + tracking pipeline |
-| `src/stream.py` | Video-source wrapper |
+| `src/surveillance.py` | Main YOLO + ByteTrack pipeline |
+| `src/stream.py` | Video-source abstraction |
 | `src/track_record.py` | Normalized tracked-object record |
-| `src/result_adapter.py` | Tracker-result normalization |
+| `src/result_adapter.py` | Ultralytics result normalization |
 | `src/track_summary.py` | Active-track and class summaries |
-| `src/class_filter.py` | Class/confidence filtering |
+| `src/class_filter.py` | Class parsing and metadata filtering |
 | `src/export.py` | JSONL tracking-metadata export |
 | `src/metrics.py` | Rolling latency / FPS metrics |
-| `src/utils.py` | Source parsing and stream-label sanitization |
-| `scripts/benchmark.py` | Inference benchmark |
-| `scripts/summarize_jsonl.py` | Offline track-metadata summary |
+| `src/config.py` | YAML configuration validation |
+| `src/utils.py` | Source parsing and credential-safe labels |
+| `config/` | Example runtime configuration |
+| `scripts/benchmark.py` | Inference benchmark utility |
+| `scripts/summarize_jsonl.py` | Offline metadata summarizer |
 | `tests/` | Unit tests |
-| `docs/` | Architecture, deployment, and verification notes |
+| `docs/` | Architecture, deployment, verification, and performance notes |
+| `pyproject.toml` | Test and lint configuration |
 
-## Installation
+## Setup
 
 ```powershell
 git clone https://github.com/dewanshpandey04/aerial-surveillance-multi-object-tracking.git
@@ -66,36 +74,61 @@ cd aerial-surveillance-multi-object-tracking
 
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
+
+For development and repository quality checks:
+
+```powershell
+pip install -r requirements-dev.txt
+```
+
+> NVIDIA Jetson deployments may require the JetPack-compatible PyTorch build provided for the target platform.
 
 ## Usage
 
 Webcam:
 
 ```powershell
-python src/surveillance.py --source 0 --show
+python -m src.surveillance --source 0 --show
 ```
 
 Recorded video:
 
 ```powershell
-python src/surveillance.py --source path\to\video.mp4 --show
+python -m src.surveillance --source path\to\video.mp4 --show
 ```
 
 Network stream:
 
 ```powershell
-python src/surveillance.py --source "rtsp://USER:PASSWORD@HOST/stream" --show
+python -m src.surveillance --source "rtsp://USER:PASSWORD@HOST/stream" --show
+```
+
+Export frame-level tracking metadata:
+
+```powershell
+python -m src.surveillance --source path\to\video.mp4 --export-jsonl outputs\tracks.jsonl
+```
+
+Report only selected classes in exported/summary metadata:
+
+```powershell
+python -m src.surveillance --source path\to\video.mp4 --report-classes "uav,vehicle" --export-jsonl outputs\tracks.jsonl
 ```
 
 Do not commit real stream credentials.
 
-## Testing
+## Quality checks
 
 ```powershell
-pytest -q
+python -m compileall -q src scripts tests
+ruff check .
+python -m pytest -q
 ```
+
+CI runs these checks on **Python 3.10, 3.11, and 3.12**.
 
 ## Benchmarking
 
@@ -109,6 +142,8 @@ python scripts/benchmark.py --model yolo11n.pt --source path\to\video.mp4
 python scripts/summarize_jsonl.py outputs\tracks.jsonl
 ```
 
+The summary reports processed frames, track observations, unique track IDs, and class observations.
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
@@ -116,6 +151,8 @@ python scripts/summarize_jsonl.py outputs\tracks.jsonl
 - [Deployment](docs/deployment.md)
 - [Performance](docs/performance.md)
 - [Verification](docs/verification.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)
 
 ## Branches
 
