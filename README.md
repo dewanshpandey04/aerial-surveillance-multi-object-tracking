@@ -1,49 +1,44 @@
 # AI-Powered Aerial Surveillance & Multi-Object Tracking System
 
-Public portfolio implementation of a real-time aerial surveillance pipeline using **YOLO, ByteTrack, OpenCV, and live/video/RTSP-style stream inputs**.
+A public portfolio implementation of a real-time **aerial detection and multi-object tracking pipeline** built with YOLO, ByteTrack, OpenCV, and edge-AI deployment practices.
 
-The professional project work involved detecting and tracking multiple object classes from aerial camera feeds, running low-latency inference on edge hardware, and maintaining persistent track identities in real time.
+The professional project involved processing live UAV camera feeds, detecting multiple object classes, maintaining persistent track identities, monitoring inference performance, and deploying low-latency vision workloads on embedded hardware.
 
-> **IP / privacy note:** this repository contains no private company footage, credentials, proprietary datasets, internal model weights, or customer data. It uses public tooling and safe configuration examples.
+> This repository contains no private company footage, customer streams, credentials, proprietary datasets, internal model weights, or production-only source code.
 
-## What this repository demonstrates
+## My contribution
 
-- Real-time YOLO object detection
-- ByteTrack multi-object tracking
-- Webcam, recorded video, and network-stream input
-- Persistent track IDs
-- Class/confidence/box metadata extraction
-- FPS and inference-latency monitoring
-- Simple event/track summaries
-- Edge-AI deployment structure for NVIDIA Jetson and Raspberry Pi
-- Unit tests and benchmark utilities
+- Developed real-time aerial object-detection and tracking workflows using YOLO, PyTorch, OpenCV, and ByteTrack.
+- Built live video / network-stream processing paths for continuous camera inference.
+- Maintained persistent object IDs and structured metadata for tracked objects.
+- Added credential-safe stream labeling so sensitive RTSP information is not exposed in logs or displays.
+- Implemented active-track summaries and runtime metrics for monitoring.
+- Worked with NVIDIA Jetson and Raspberry Pi-class hardware for edge-AI deployment.
+- Added benchmark scripts, deployment documentation, unit tests, and CI for a professional public presentation.
 
-## Tech stack
+## Professional project scope
 
-**Python · YOLO · PyTorch · OpenCV · ByteTrack · RTSP · NVIDIA Jetson · Raspberry Pi**
+The original system detected and tracked object classes including **humans, UAVs, tanks, vehicles, and other ground objects** from aerial imagery. Custom YOLO detectors achieved **mAP50 above 0.92** in the professional project, and optimized edge pipelines achieved **50+ FPS** on live UAV camera feeds.
 
-## High-level architecture
+These figures describe the original project environment. The private training dataset, production weights, and exact deployment configuration are not included in this public repository.
 
-```text
-Camera / Video / Network Stream
-              |
-              v
-        Frame Acquisition
-              |
-              v
-          YOLO Detector
-              |
-              v
-       ByteTrack Tracker
-              |
-              v
- IDs + Classes + Boxes + Confidence
-              |
-              v
- Visualization / Metrics / Event Summary
-```
+## Technical stack
 
-See [docs/architecture.md](docs/architecture.md).
+**Python · YOLO · PyTorch · OpenCV · ByteTrack · RTSP · NVIDIA Jetson · Raspberry Pi · CUDA**
+
+## Repository structure
+
+| Path | Purpose |
+|---|---|
+| `src/surveillance.py` | Live/video/network-stream detection + tracking |
+| `src/track_summary.py` | Track-count and class-summary utilities |
+| `src/metrics.py` | Runtime FPS / latency metrics |
+| `src/utils.py` | Input parsing and credential-safe stream labels |
+| `config/` | Public-safe configuration template |
+| `scripts/benchmark.py` | Inference performance benchmark |
+| `tests/` | Unit tests |
+| `docs/` | Architecture, deployment, verification, and code-tour notes |
+| `.github/workflows/` | CI checks |
 
 ## Quick start
 
@@ -73,22 +68,25 @@ python src/surveillance.py --source "rtsp://USER:PASSWORD@HOST/stream" --show
 
 Never commit real stream credentials.
 
-## Repository layout
+Run tests:
 
-```text
-config/
-docs/
-scripts/
-src/
-tests/
-.github/workflows/
+```powershell
+pytest -q
 ```
 
-## Branches
+## Engineering documentation
 
-- `main` — stable portfolio version
-- `develop` — development/integration branch
-- `docs` — documentation-focused branch
+- [Architecture](docs/architecture.md)
+- [Code tour](docs/code-tour.md)
+- [Deployment notes](docs/deployment.md)
+- [Verification plan](docs/verification.md)
+- [Professional results and public scope](docs/performance.md)
+
+## Branch strategy
+
+- `main` — stable recruiter-facing portfolio version
+- `develop` — development and integration work
+- `docs` — documentation-focused changes
 
 ## Author
 
