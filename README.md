@@ -51,6 +51,9 @@ ruff check .
 
 ## More detail
 
+[Project evidence: code, tests, and research boundaries](docs/project-evidence.md)
+
+
 [Architecture](docs/architecture.md) · [Deployment](docs/deployment.md) · [Verification](docs/verification.md) · [Performance](docs/performance.md) · [Contributing](CONTRIBUTING.md)
 
 **Publication boundary:** This is a public portfolio implementation. Private footage, production model weights, company source code, and credentials are not included. Historical performance claims from the original project are described separately in [performance notes](docs/performance.md) and are not reproducible from this repository alone.
