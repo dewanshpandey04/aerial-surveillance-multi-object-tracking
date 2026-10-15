@@ -37,5 +37,11 @@ jobs:
       - name: Lint
         run: ruff check .
 
+      - name: CLI smoke checks
+        run: |
+          python -m src.surveillance --help > /dev/null
+          python scripts/benchmark.py --help > /dev/null
+          python scripts/summarize_jsonl.py --help > /dev/null
+
       - name: Unit tests
         run: python -m pytest -q
