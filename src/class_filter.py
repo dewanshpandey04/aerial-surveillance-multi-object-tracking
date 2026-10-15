@@ -5,6 +5,14 @@ from collections.abc import Iterable
 from .track_record import TrackRecord
 
 
+def parse_class_names(value: str | None) -> set[str] | None:
+    """Parse an optional comma-separated class-name filter."""
+    if not value:
+        return None
+    classes = {item.strip() for item in value.split(",") if item.strip()}
+    return classes or None
+
+
 def filter_tracks(
     tracks: Iterable[TrackRecord],
     allowed_classes: set[str] | None = None,
