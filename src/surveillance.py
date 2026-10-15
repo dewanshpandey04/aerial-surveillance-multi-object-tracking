@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import argparse
 import time
-
-import cv2
-from ultralytics import YOLO
+from typing import Any
 
 from src.class_filter import filter_tracks, parse_class_names
+from src.config import load_config
 from src.export import JsonlTrackExporter
 from src.metrics import RuntimeMetrics
 from src.result_adapter import track_records_from_result
@@ -18,11 +17,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Real-time aerial detection and multi-object tracking."
     )
-    parser.add_argument("--model", default="yolo11n.pt")
-    parser.add_argument("--source", required=True, help="Webcam index, video path, or network stream.")
-    parser.add_argument("--tracker", default="bytetrack.yaml")
-    parser.add_argument("--conf", type=float, default=0.35)
-    parser.add_argument("--imgsz", type=int, default=640)
+    parser.add_argument("--config", default=None, help="Optional YAML runtime configuration.")
+    parser.add_argument("--model", default=None)
+    parser.add_argument("--source", default=None, help="Webcam index, video path, or network stream.")
+    parser.add_argument("--tracker", default=None)
+    parser.add_argument("--conf", type=float, default=None)
+    parser.add_argument("--imgsz", type=int, default=None)
     parser.add_argument("--device", default=None)
     parser.add_argument(
         "--report-classes",
@@ -45,20 +45,44 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _section(config: dict[str, Any], name: str) -> dict[str, Any]:
+    value = config.get(name, {})
+    return value if isinstance(value, dict) else {}
+
+
 def main() -> None:
     args = build_parser().parse_args()
-    source = parse_source(args.source)
-    model = YOLO(args.model)
+    config = load_config(args.config) if args.config else {}
+
+    stream = _section(config, "stream")
+    detection = _section(config, "detection")
+    tracking = _section(config, "tracking")
+
+    model_path = args.model or detection.get("model", "yolo11n.pt")
+    source = parse_source(args.source if args.source is not None else stream.get("source", 0))
+    tracker = args.tracker or tracking.get("tracker", "bytetrack.yaml")
+    conf = args.conf if args.conf is not None else float(detection.get("confidence_threshold", 0.35))
+    imgsz = args.imgsz if args.imgsz is not None else int(detection.get("image_size", 640))
+
+    from ultralytics import YOLO
+
+    cv2 = None
+    if args.show:
+        import cv2 as cv2_module
+
+        cv2 = cv2_module
+
+    model = YOLO(model_path)
     metrics = RuntimeMetrics(window=60)
     allowed_classes = parse_class_names(args.report_classes)
     exporter = JsonlTrackExporter(args.export_jsonl) if args.export_jsonl else None
 
     results = model.track(
         source=source,
-        tracker=args.tracker,
+        tracker=tracker,
         persist=True,
-        conf=args.conf,
-        imgsz=args.imgsz,
+        conf=conf,
+        imgsz=imgsz,
         device=args.device,
         stream=True,
         save=args.save,
@@ -66,56 +90,60 @@ def main() -> None:
     )
 
     previous = time.perf_counter()
-    display_source = safe_stream_label(str(args.source))
+    display_source = safe_stream_label(str(source))
 
-    for frame_id, result in enumerate(results, start=1):
-        now = time.perf_counter()
-        metrics.add_latency_ms((now - previous) * 1000.0)
-        previous = now
+    try:
+        for frame_id, result in enumerate(results, start=1):
+            now = time.perf_counter()
+            metrics.add_frame_time_ms((now - previous) * 1000.0)
+            previous = now
 
-        records = track_records_from_result(result)
-        reported_records = filter_tracks(
-            records,
-            allowed_classes=allowed_classes,
-            minimum_confidence=args.report_min_confidence,
-        )
-        summary = summarize_tracks(reported_records)
+            records = track_records_from_result(result)
+            reported_records = filter_tracks(
+                records,
+                allowed_classes=allowed_classes,
+                minimum_confidence=args.report_min_confidence,
+            )
+            summary = summarize_tracks(reported_records)
 
+            if exporter is not None:
+                exporter.write(
+                    frame_id=frame_id,
+                    timestamp=time.time(),
+                    fps=metrics.fps,
+                    tracks=reported_records,
+                )
+
+            if args.show:
+                frame = result.plot()
+                cv2.putText(
+                    frame,
+                    f"FPS {metrics.fps:.1f} | Reported tracks {summary['active_tracks']}",
+                    (20, 35),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (255, 255, 255),
+                    2,
+                    cv2.LINE_AA,
+                )
+                cv2.putText(
+                    frame,
+                    f"Source: {display_source}",
+                    (20, 70),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (255, 255, 255),
+                    2,
+                    cv2.LINE_AA,
+                )
+                cv2.imshow("Aerial Surveillance & Tracking", frame)
+                if cv2.waitKey(1) & 0xFF in (27, ord("q")):
+                    break
+    finally:
         if exporter is not None:
-            exporter.write(
-                frame_id=frame_id,
-                timestamp=time.time(),
-                fps=metrics.approx_fps,
-                tracks=reported_records,
-            )
-
-        if args.show:
-            frame = result.plot()
-            cv2.putText(
-                frame,
-                f"FPS {metrics.approx_fps:.1f} | Reported tracks {summary['active_tracks']}",
-                (20, 35),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
-                (255, 255, 255),
-                2,
-                cv2.LINE_AA,
-            )
-            cv2.putText(
-                frame,
-                f"Source: {display_source}",
-                (20, 70),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (255, 255, 255),
-                2,
-                cv2.LINE_AA,
-            )
-            cv2.imshow("Aerial Surveillance & Tracking", frame)
-            if cv2.waitKey(1) & 0xFF in (27, ord("q")):
-                break
-
-    cv2.destroyAllWindows()
+            exporter.close()
+        if cv2 is not None:
+            cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
