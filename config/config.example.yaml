@@ -1,6 +1,6 @@
 project:
   name: aerial-surveillance-multi-object-tracking
-  mode: portfolio-demo
+  mode: development
 
 stream:
   source: 0
