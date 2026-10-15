@@ -1,5 +1,7 @@
 # AI-Powered Aerial Surveillance & Multi-Object Tracking System
 
+![CI](https://github.com/dewanshpandey04/aerial-surveillance-multi-object-tracking/actions/workflows/ci.yml/badge.svg)
+
 A public portfolio implementation of a real-time **aerial detection and multi-object tracking pipeline** built with YOLO, ByteTrack, OpenCV, and edge-AI deployment practices.
 
 The professional project involved processing live UAV camera feeds, detecting multiple object classes, maintaining persistent track identities, monitoring inference performance, and deploying low-latency vision workloads on embedded hardware.
@@ -91,4 +93,5 @@ pytest -q
 ## Author
 
 **Dewansh Pandey**  
-AI/ML Engineer | Computer Vision & Autonomous Systems
+AI/ML Engineer | Computer Vision & Autonomous Systems  
+[LinkedIn](https://www.linkedin.com/in/dewansh-pandey-9b564a317) · [GitHub](https://github.com/dewanshpandey04)
