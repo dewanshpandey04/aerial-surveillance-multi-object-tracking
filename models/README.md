@@ -1,11 +1,13 @@
 # Model Artifacts
 
-Production model weights and private datasets are not included in this public repository.
+Production model weights and private datasets are not stored in this repository.
 
-Use a local or publicly licensed model at runtime:
+Use a local model path at runtime:
 
 ```powershell
-python src/surveillance.py --model path\to\model.pt --source path\to\video.mp4 --show
+python -m src.surveillance --model path\to\model.pt --source path\to\video.mp4 --show
 ```
 
-Do not commit employer-owned weights, customer footage, private datasets, or stream credentials.
+For NVIDIA Jetson, use a PyTorch/runtime build compatible with the target JetPack and CUDA version.
+
+Do not commit employer-owned weights, customer footage, private datasets, credentials, or confidential deployment artifacts.
