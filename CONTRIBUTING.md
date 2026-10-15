@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions are welcome for bug fixes, tests, documentation, stream handling, export utilities, portability, and benchmarking.
+Contributions are welcome for bug fixes, tests, documentation, stream handling, metadata processing, export utilities, portability, and benchmarking.
 
 ## Development setup
 
@@ -10,35 +10,40 @@ cd aerial-surveillance-multi-object-tracking
 
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+pip install -r requirements-dev.txt
 ```
 
-Run the test suite before submitting changes:
+Install `requirements.txt` as well when running the YOLO/OpenCV application locally.
+
+## Quality checks
+
+Before opening a pull request, run:
 
 ```powershell
-pytest -q
+python -m compileall -q src scripts tests
+ruff check .
+python -m pytest -q
 ```
 
 ## Workflow
 
-1. Create a branch from `develop`.
-2. Use a clear branch name such as `feature/...`, `fix/...`, or `docs/...`.
-3. Keep commits focused and easy to review.
-4. Add or update tests for reusable logic.
-5. Run `pytest -q` before opening a pull request.
-6. Open the pull request into `develop` and describe what changed and how it was validated.
+1. Branch from `develop`.
+2. Use a focused name such as `feature/...`, `fix/...`, or `docs/...`.
+3. Keep each change scoped to one problem.
+4. Add or update tests when reusable logic changes.
+5. Run the local quality checks.
+6. Open a pull request into `develop` and describe the change and validation performed.
 
 ## Code guidelines
 
-- Target Python 3.11 or newer.
-- Keep stream acquisition, inference, metadata, export, and metrics separated.
-- Add type hints for reusable data structures and interfaces.
-- Keep runtime settings configurable.
+- Support Python 3.10+.
+- Keep stream handling, inference, metadata, export, and metrics separated.
+- Use type hints for reusable interfaces and data structures.
+- Normalize framework-specific results before using them in application logic.
+- Keep sources, thresholds, model paths, and devices configurable.
 - Never expose credentials in logs, examples, or committed configuration.
-
-## Repository boundaries
-
-Do not commit private footage, customer data, stream credentials, proprietary datasets, production model weights, internal network details, or confidential deployment configuration.
+- Do not commit private footage, production weights, datasets, or confidential deployment settings.
 
 ## Branches
 
