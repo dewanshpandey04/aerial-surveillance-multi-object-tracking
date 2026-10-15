@@ -14,20 +14,20 @@ The project is structured as a small, inspectable computer-vision service rather
 | Track summary | Active-track counts and class distribution |
 | Class filter | Optional class/confidence filtering for reporting |
 | JSONL export | Persist frame-level metadata for offline analysis |
-| Runtime metrics | FPS and inference timing |
+| Runtime metrics | Rolling frame-time and approximate FPS |
 | Visualization | Annotated frames for development and validation |
-| Benchmarking | Repeatable local performance measurement |
+| Benchmarking | Separate inference-latency measurement |
 | Tests | Validation of utility, filtering, export, and metadata behavior |
 
 ## Processing sequence
 
-1. A source is parsed as a webcam index, file path, or network URL.
+1. A source is resolved from CLI arguments or YAML configuration.
 2. Frames are passed to the selected YOLO model.
 3. ByteTrack associates detections across consecutive frames.
 4. Tracker outputs are normalized into reusable `TrackRecord` objects.
-5. Optional filters select classes/confidence levels for reporting.
-6. Track summaries and runtime metrics are generated independently from inference.
-7. Metadata can be written to JSONL for offline review.
+5. Optional filters select classes/confidence levels for metadata reporting.
+6. Track summaries and frame-time/FPS metrics are generated.
+7. Metadata can be written to buffered JSONL output for offline review.
 8. Optional visualization displays annotated frames without exposing stream credentials.
 
 ## Design choices
@@ -38,9 +38,11 @@ The project is structured as a small, inspectable computer-vision service rather
 
 **Stable metadata contract.** Model-specific results are converted into simple records before summaries or export.
 
-**Offline inspection.** JSONL output provides a lightweight way to analyze tracking behavior without storing private video.
+**Buffered metadata export.** JSONL output keeps video and metadata concerns separate while reducing per-frame file-open overhead.
 
-**Edge-friendly structure.** Source handling, inference, metadata, filtering, export, and metrics remain modular so hardware-specific optimizations can be introduced independently.
+**Metric separation.** Runtime frame-time/FPS metrics describe pipeline cadence, while the benchmark utility separately measures model-reported inference latency.
+
+**Edge-friendly structure.** Inference, metadata, filtering, export, configuration, and metrics remain modular so hardware-specific optimization can be introduced independently.
 
 ## Deployment context
 
