@@ -1,185 +1,58 @@
-# AI-Powered Aerial Surveillance & Multi-Object Tracking System
+# Aerial Surveillance & Multi-Object Tracking
 
-![CI](https://github.com/dewanshpandey04/aerial-surveillance-multi-object-tracking/actions/workflows/ci.yml/badge.svg)
+**Python · YOLO · ByteTrack · OpenCV · RTSP · Pytest**
 
-Real-time **aerial object detection and multi-object tracking software** for webcam, recorded-video, and network-stream inputs, with normalized track metadata, filtering, runtime metrics, JSONL export, and edge-AI deployment support.
+A real-time computer vision project for detecting and tracking objects in webcam, video-file, and network-stream inputs. Includes reusable tracking metadata, JSONL export, class filters, metrics, and unit tests.
 
-**Python · PyTorch · YOLO · OpenCV · ByteTrack · RTSP · CUDA · NVIDIA Jetson · Raspberry Pi · GitHub Actions**
+## Quick start
 
-## Engineering highlights
+Requires Python 3.10+.
 
-- YOLO-based real-time object detection
-- ByteTrack persistent multi-object tracking
-- Stable `TrackRecord` data model for downstream processing
-- Result adapters that isolate application code from framework-specific result objects
-- Class-name and confidence filtering for metadata reporting
-- Active-track counts, class distributions, and persistent-ID summaries
-- Credential-safe RTSP/network-stream labels
-- Line-buffered frame-level JSONL metadata export
-- Offline metadata summarization
-- Rolling frame-time and approximate FPS metrics
-- CLI and YAML-driven runtime configuration
-- Unit-tested reusable logic
-- Automated syntax, lint, CLI-smoke, and test checks on Python 3.10, 3.11, and 3.12
-- Deployment notes for NVIDIA Jetson and Raspberry Pi-class systems
-
-## Processing pipeline
-
-1. **Input** — webcam index, video file, or network stream
-2. **Detection** — YOLO class/confidence/bounding-box inference
-3. **Tracking** — ByteTrack persistent object IDs
-4. **Normalization** — tracker results converted into `TrackRecord` objects
-5. **Reporting filters** — optional class and confidence filtering
-6. **Summaries** — track count, class distribution, and visible IDs
-7. **Metrics** — rolling frame time and approximate FPS
-8. **Export** — optional JSONL metadata for offline analysis
-9. **Visualization** — annotated OpenCV display with sanitized source label
-
-## Measured project results
-
-The original project work included real-time detection and tracking of **humans, UAVs, tanks, vehicles, and other ground objects** from aerial imagery.
-
-| Metric | Result |
-|---|---:|
-| Custom detector | mAP50 > 0.92 |
-| Optimized live UAV camera pipeline | 50+ FPS |
-
-These results refer to the original project environment. Private training data, production model weights, customer footage, and exact deployment configuration are not included in this repository.
-
-## Repository structure
-
-| Path | Responsibility |
-|---|---|
-| `src/surveillance.py` | Main YOLO + ByteTrack pipeline |
-| `src/stream.py` | Video-source abstraction |
-| `src/track_record.py` | Normalized tracked-object record |
-| `src/result_adapter.py` | Ultralytics result normalization |
-| `src/track_summary.py` | Active-track and class summaries |
-| `src/class_filter.py` | Class parsing and metadata filtering |
-| `src/export.py` | Buffered JSONL tracking-metadata export |
-| `src/metrics.py` | Rolling frame-time / FPS metrics |
-| `src/config.py` | YAML configuration validation |
-| `src/utils.py` | Source parsing and credential-safe labels |
-| `config/` | Example runtime configuration |
-| `scripts/benchmark.py` | Inference benchmark utility |
-| `scripts/summarize_jsonl.py` | Offline metadata summarizer |
-| `tests/` | Unit tests |
-| `docs/` | Architecture, deployment, verification, and performance notes |
-| `pyproject.toml` | Test and lint configuration |
-
-## Setup
-
-```powershell
+```bash
 git clone https://github.com/dewanshpandey04/aerial-surveillance-multi-object-tracking.git
 cd aerial-surveillance-multi-object-tracking
-
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-For development and repository quality checks:
-
-```powershell
-pip install -r requirements-dev.txt
-```
-
-> NVIDIA Jetson deployments may require the JetPack-compatible PyTorch build provided for the target platform.
-
-## Usage
-
-Webcam:
-
-```powershell
+python -m pip install -r requirements.txt
 python -m src.surveillance --source 0 --show
 ```
 
-Recorded video:
+Activate the virtual environment before installing packages when appropriate for your OS. The default example uses an Ultralytics model; internet access may be needed for its initial download.
 
-```powershell
-python -m src.surveillance --source path\to\video.mp4 --show
-```
+## Use cases
 
-Network stream:
+| Command | Purpose |
+| --- | --- |
+| `python -m src.surveillance --source 0 --show` | Live webcam detection and tracking |
+| `python -m src.surveillance --source video.mp4 --show` | Recorded-video analysis |
+| `python -m src.surveillance --source video.mp4 --export-jsonl outputs/tracks.jsonl` | Export frame-level tracking metadata |
+| `python scripts/summarize_jsonl.py outputs/tracks.jsonl` | Summarize exported tracks |
+| `python scripts/benchmark.py --model yolo11n.pt --source video.mp4` | Measure inference performance |
 
-```powershell
-python -m src.surveillance --source "rtsp://USER:PASSWORD@HOST/stream" --show
-```
+For RTSP input, pass the stream URL through `--source` without committing credentials.
 
-Run from the example YAML configuration:
+## Code map
 
-```powershell
-python -m src.surveillance --config config\config.example.yaml --show
-```
+| Location | Responsibility |
+| --- | --- |
+| [`src/surveillance.py`](src/surveillance.py) | Video-to-detection/tracking pipeline |
+| [`src/result_adapter.py`](src/result_adapter.py) | Model result normalization |
+| [`src/track_record.py`](src/track_record.py), [`src/track_summary.py`](src/track_summary.py) | Track records and summaries |
+| [`src/class_filter.py`](src/class_filter.py), [`src/export.py`](src/export.py) | Reporting filters and JSONL export |
+| [`src/config.py`](src/config.py), [`config/`](config/) | Runtime configuration |
+| [`tests/`](tests/), [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Unit tests and automated checks |
 
-CLI values such as `--model`, `--source`, `--conf`, and `--imgsz` override the corresponding config values when supplied.
+## Verify
 
-Export frame-level tracking metadata:
-
-```powershell
-python -m src.surveillance --source path\to\video.mp4 --export-jsonl outputs\tracks.jsonl
-```
-
-Report only selected classes in exported/summary metadata:
-
-```powershell
-python -m src.surveillance --source path\to\video.mp4 --report-classes "uav,vehicle" --export-jsonl outputs\tracks.jsonl
-```
-
-Do not commit real stream credentials.
-
-## Quality checks
-
-```powershell
-python -m compileall -q src scripts tests
-ruff check .
-python -m src.surveillance --help
+```bash
+python -m pip install -r requirements-dev.txt
 python -m pytest -q
+ruff check .
 ```
 
-CI runs these checks on **Python 3.10, 3.11, and 3.12**.
+## More detail
 
-## Benchmarking
+[Architecture](docs/architecture.md) · [Deployment](docs/deployment.md) · [Verification](docs/verification.md) · [Performance](docs/performance.md) · [Contributing](CONTRIBUTING.md)
 
-Human-readable output:
+**Publication boundary:** This is a public portfolio implementation. Private footage, production model weights, company source code, and credentials are not included. Historical performance claims from the original project are described separately in [performance notes](docs/performance.md) and are not reproducible from this repository alone.
 
-```powershell
-python scripts/benchmark.py --model yolo11n.pt --source path\to\video.mp4
-```
-
-Machine-readable output:
-
-```powershell
-python scripts/benchmark.py --model yolo11n.pt --source path\to\video.mp4 --json
-```
-
-## Metadata analysis
-
-```powershell
-python scripts/summarize_jsonl.py outputs\tracks.jsonl
-```
-
-The summary reports processed frames, track observations, unique track IDs, and class observations.
-
-## Documentation
-
-- [Architecture](docs/architecture.md)
-- [Code tour](docs/code-tour.md)
-- [Deployment](docs/deployment.md)
-- [Performance](docs/performance.md)
-- [Verification](docs/verification.md)
-- [Contributing](CONTRIBUTING.md)
-- [Security](SECURITY.md)
-
-## Branches
-
-- `main` — stable branch
-- `develop` — development and integration
-- `docs` — documentation work
-
-## Author
-
-**Dewansh Pandey**  
-AI/ML Engineer | Computer Vision & Autonomous Systems  
-[LinkedIn](https://www.linkedin.com/in/dewansh-pandey-9b564a317) · [GitHub](https://github.com/dewanshpandey04)
+**Author:** [Dewansh Pandey](https://github.com/dewanshpandey04)
