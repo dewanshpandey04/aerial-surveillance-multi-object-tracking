@@ -1,28 +1,40 @@
 # Aerial Surveillance Architecture
 
-```mermaid
-flowchart TD
-    A[Webcam / Video / Network Stream] --> B[Frame Acquisition]
-    B --> C[YOLO Detection]
-    C --> D[ByteTrack Multi-Object Tracking]
-    D --> E[Track Metadata]
-    E --> F[HUD / Visualization]
-    E --> G[Track Summary / Metrics]
-    G --> H[Logs / Evaluation]
-```
+The project is structured as a small, inspectable computer-vision service rather than a single monolithic script.
 
-## Data flow
+## Component model
 
-1. **Frame acquisition** accepts local or network-based video sources.
-2. **Detection** produces class, confidence, and box metadata.
-3. **Tracking** associates detections across frames using persistent IDs.
-4. **Track metadata** feeds visualization and summary logic.
-5. **Metrics** report active tracks and inference performance.
+| Component | Responsibility |
+|---|---|
+| Video input | Webcam, recorded video, or network-stream source |
+| Detector | Object detection and class/confidence output |
+| Tracker | Persistent identity assignment across frames |
+| Track metadata | Normalized per-object IDs and state |
+| Track summary | Active-track counts and class distribution |
+| Runtime metrics | FPS and inference timing |
+| Visualization | Annotated frames for development and validation |
+| Benchmarking | Repeatable local performance measurement |
+| Tests | Validation of utility and metadata behavior |
 
-## Edge deployment
+## Processing sequence
 
-The public code is intentionally hardware-agnostic. On NVIDIA Jetson or Raspberry Pi-class devices, model format, decoder path, image size, and source handling should be selected for the actual hardware and camera pipeline.
+1. A source is parsed as either a webcam index, file path, or network URL.
+2. Frames are passed to the selected YOLO model.
+3. ByteTrack associates detections across consecutive frames.
+4. Track IDs and detection metadata are extracted into reusable structures.
+5. Runtime metrics and track summaries are generated independently from model inference.
+6. Optional visualization displays annotated frames without exposing stream credentials.
 
-## Privacy / IP boundaries
+## Design choices
 
-This repository does not contain private surveillance footage, customer streams, credentials, proprietary model weights, or internal company source.
+**Credential safety.** Network-stream labels are sanitized before display or logging.
+
+**Persistent identity.** Tracking is kept separate from detection so object identity can survive short-term movement between frames.
+
+**Inspectable outputs.** Track summaries provide simple counts and class distributions that can be tested without requiring a GPU.
+
+**Edge-friendly structure.** The public implementation keeps source handling, inference, metadata, and metrics modular so hardware-specific optimization can be introduced without rewriting the entire application.
+
+## Deployment context
+
+The professional project used NVIDIA Jetson and Raspberry Pi-class platforms. Exact production decoder settings, private camera addresses, company footage, proprietary model weights, and internal deployment configuration are excluded.
